@@ -2,9 +2,9 @@ CC=g++
 CFLAGS=-std=c++17
 COMPILE_TARGET=NUCLEO_F401RE
 FLASH_TARGET=NODE_F401RE
-EXECUTABLE_NAME=BLINKY_TOP
+EXECUTABLE_NAME=SEEED_BOT_TOP
 
-INCLUDECADMIUM=-I ../../cadmium/include
+INCLUDECADMIUM=-I ~/cadmium/include
 
 embedded: 
 	mbed compile --target $(COMPILE_TARGET) --toolchain GCC_ARM --profile ../cadmium.json

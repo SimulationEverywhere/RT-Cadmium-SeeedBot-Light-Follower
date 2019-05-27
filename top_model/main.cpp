@@ -21,7 +21,11 @@
 #include "../atomics/digitalInput.hpp"
 #include "../atomics/digitalOutput.hpp"
 
-#include "../atomics/blinky.hpp"
+#include "../atomics/seeedBotDriver.hpp"
+
+#ifdef ECADMIUM
+#include "../mbed.h"
+#endif
 
 using namespace std;
 
@@ -91,23 +95,54 @@ using CoupledModelPtr=std::shared_ptr<cadmium::dynamic::modeling::coupled<TIME>>
 /****** blinky *******************/
 /********************************************/
 
-AtomicModelPtr blinky1 = cadmium::dynamic::translate::make_dynamic_atomic_model<Blinky, TIME>("blinky1");
+AtomicModelPtr seeedBotDriver = cadmium::dynamic::translate::make_dynamic_atomic_model<SeeedBotDriver, TIME>("seeedBotDriver");
 
 /********************************************/
 /****** DigitalInput1 *******************/
 /********************************************/
 #ifdef ECADMIUM
-AtomicModelPtr digitalInput1 = cadmium::dynamic::translate::make_dynamic_atomic_model<DigitalInput, TIME>("digitalInput1", BUTTON1);
+AtomicModelPtr rightIR = cadmium::dynamic::translate::make_dynamic_atomic_model<DigitalInput, TIME>("rightIR", A0);
 #else
-AtomicModelPtr digitalInput1 = cadmium::dynamic::translate::make_dynamic_atomic_model<DigitalInput, TIME>("digitalInput1");
+AtomicModelPtr rightIR = cadmium::dynamic::translate::make_dynamic_atomic_model<DigitalInput, TIME>("rightIR");
 #endif
+
+#ifdef ECADMIUM
+AtomicModelPtr centerIR = cadmium::dynamic::translate::make_dynamic_atomic_model<DigitalInput, TIME>("centerIR", A2);
+#else
+AtomicModelPtr centerIR = cadmium::dynamic::translate::make_dynamic_atomic_model<DigitalInput, TIME>("centerIR");
+#endif
+
+#ifdef ECADMIUM
+AtomicModelPtr leftIR = cadmium::dynamic::translate::make_dynamic_atomic_model<DigitalInput, TIME>("leftIR", D4);
+#else
+AtomicModelPtr leftIR = cadmium::dynamic::translate::make_dynamic_atomic_model<DigitalInput, TIME>("leftIR");
+#endif
+
 /********************************************/
 /****** DigitalOutput1 *******************/
 /********************************************/
 #ifdef ECADMIUM
-AtomicModelPtr digitalOutput1 = cadmium::dynamic::translate::make_dynamic_atomic_model<DigitalOutput, TIME>("digitalOutput1", LED1);
+AtomicModelPtr rightMotor1 = cadmium::dynamic::translate::make_dynamic_atomic_model<DigitalOutput, TIME>("rightMotor1", D8);
 #else
-AtomicModelPtr digitalOutput1 = cadmium::dynamic::translate::make_dynamic_atomic_model<DigitalOutput, TIME>("digitalOutput1");
+AtomicModelPtr rightMotor1 = cadmium::dynamic::translate::make_dynamic_atomic_model<DigitalOutput, TIME>("rightMotor1");
+#endif
+
+#ifdef ECADMIUM
+AtomicModelPtr rightMotor2 = cadmium::dynamic::translate::make_dynamic_atomic_model<DigitalOutput, TIME>("rightMotor2", D11);
+#else
+AtomicModelPtr rightMotor2 = cadmium::dynamic::translate::make_dynamic_atomic_model<DigitalOutput, TIME>("rightMotor2");
+#endif
+
+#ifdef ECADMIUM
+AtomicModelPtr leftMotor1 = cadmium::dynamic::translate::make_dynamic_atomic_model<DigitalOutput, TIME>("leftMotor1", D12);
+#else
+AtomicModelPtr leftMotor1 = cadmium::dynamic::translate::make_dynamic_atomic_model<DigitalOutput, TIME>("leftMotor1");
+#endif
+
+#ifdef ECADMIUM
+AtomicModelPtr leftMotor2 = cadmium::dynamic::translate::make_dynamic_atomic_model<DigitalOutput, TIME>("leftMotor2", D13);
+#else
+AtomicModelPtr leftMotor2 = cadmium::dynamic::translate::make_dynamic_atomic_model<DigitalOutput, TIME>("leftMotor2");
 #endif
 
 /************************/
@@ -115,12 +150,17 @@ AtomicModelPtr digitalOutput1 = cadmium::dynamic::translate::make_dynamic_atomic
 /************************/
 cadmium::dynamic::modeling::Ports iports_TOP = {};
 cadmium::dynamic::modeling::Ports oports_TOP = {};
-cadmium::dynamic::modeling::Models submodels_TOP =  {blinky1, digitalOutput1, digitalInput1};
+cadmium::dynamic::modeling::Models submodels_TOP =  {seeedBotDriver, rightIR, centerIR, leftIR, rightMotor1, rightMotor2, leftMotor1, leftMotor2};
 cadmium::dynamic::modeling::EICs eics_TOP = {};
 cadmium::dynamic::modeling::EOCs eocs_TOP = {};
 cadmium::dynamic::modeling::ICs ics_TOP = {
-   cadmium::dynamic::translate::make_IC<blinky_defs::dataOut, digitalOutput_defs::in>("blinky1","digitalOutput1"),
-   cadmium::dynamic::translate::make_IC<digitalInput_defs::out, blinky_defs::in>("digitalInput1", "blinky1")
+   cadmium::dynamic::translate::make_IC<seeedBotDriver_defs::rightMotor1, digitalOutput_defs::in>("seeedBotDriver","rightMotor1"),
+   cadmium::dynamic::translate::make_IC<seeedBotDriver_defs::rightMotor2, digitalOutput_defs::in>("seeedBotDriver","rightMotor2"),
+   cadmium::dynamic::translate::make_IC<seeedBotDriver_defs::leftMotor1, digitalOutput_defs::in>("seeedBotDriver","leftMotor1"),
+   cadmium::dynamic::translate::make_IC<seeedBotDriver_defs::leftMotor2, digitalOutput_defs::in>("seeedBotDriver","leftMotor2"),
+   cadmium::dynamic::translate::make_IC<digitalInput_defs::out, seeedBotDriver_defs::rightIR>("rightIR", "seeedBotDriver"),
+   cadmium::dynamic::translate::make_IC<digitalInput_defs::out, seeedBotDriver_defs::leftIR>("leftIR", "seeedBotDriver"),
+   cadmium::dynamic::translate::make_IC<digitalInput_defs::out, seeedBotDriver_defs::centerIR>("centerIR", "seeedBotDriver")
 };
 CoupledModelPtr TOP = std::make_shared<cadmium::dynamic::modeling::coupled<TIME>>(
  "TOP", 
@@ -133,23 +173,16 @@ CoupledModelPtr TOP = std::make_shared<cadmium::dynamic::modeling::coupled<TIME>
  );
 
 ///****************////
-    #ifndef ECADMIUM
-    auto elapsed1 = std::chrono::duration_cast<std::chrono::duration<double, std::ratio<1>>>(hclock::now() - start).count();
-    cout << "Model Created. Elapsed time: " << elapsed1 << "sec" << endl;
+
+    #ifdef ECADMIUM
+      DigitalOut rightMotorEn(D9);
+      DigitalOut leftMotorEn(D10);
+      rightMotorEn = 1;
+      leftMotorEn = 1;
     #endif
 
     cadmium::dynamic::engine::runner<NDTime, state> r(TOP, {0});
-    #ifndef ECADMIUM
-    elapsed1 = std::chrono::duration_cast<std::chrono::duration<double, std::ratio<1>>>(hclock::now() - start).count();
-    cout << "Runner Created. Elapsed time: " << elapsed1 << "sec" << endl;
-
-    cout << "Simulation starts" << endl;
-    #endif
 
     r.run_until(NDTime("00:10:00:000"));
-    #ifndef ECADMIUM
-    auto elapsed = std::chrono::duration_cast<std::chrono::duration<double, std::ratio<1>>>(hclock::now() - start).count();
-    cout << "Simulation took:" << elapsed << "sec" << endl;
     return 0;
-    #endif
 }
