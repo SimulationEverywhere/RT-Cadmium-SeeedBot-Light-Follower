@@ -25,7 +25,7 @@
 
 using namespace cadmium;
 using namespace std;
-enum DriveState {right, straight, left, stop};
+enum DriveState {right = 0, straight = 1, left = 2, stop = 3};
 //Port definition
     struct seeedBotDriver_defs {
         //Output ports
@@ -57,6 +57,7 @@ enum DriveState {right, straight, left, stop};
               bool centerIR;
               bool rightIR;
               DriveState dir;
+              bool prop;
             }; 
             state_type state;
             // ports definition
@@ -66,6 +67,7 @@ enum DriveState {right, straight, left, stop};
 
             // internal transition
             void internal_transition() {
+              state.prop = false;
               //Do nothing... 
             }
 
@@ -80,15 +82,18 @@ enum DriveState {right, straight, left, stop};
               for(const auto &x : get_messages<typename defs::leftIR>(mbs)){
                 state.leftIR = (x.value == 0);
               }
-              if(!(state.rightIR ^ state.leftIR ^ state.centerIR) || (state.rightIR && state.leftIR && state.centerIR)) {
+
+              if((!(state.rightIR ^ state.leftIR ^ state.centerIR) && !(!state.rightIR && !state.leftIR && !state.centerIR)) || (state.rightIR && state.leftIR && state.centerIR)) {
+                //This happens when no IR sensors see the line and if two or more IR sensors see the line.
                 state.dir = DriveState::stop;
               } else if (state.rightIR) {
-                state.dir = DriveState::right;
-              } else if (state.leftIR) {
                 state.dir = DriveState::left;
+              } else if (state.leftIR) {
+                state.dir = DriveState::right;
               } else {
                 state.dir = DriveState::straight;
               }
+              state.prop = true;
             }
 
             // confluence transition
@@ -100,7 +105,11 @@ enum DriveState {right, straight, left, stop};
             // output function
             typename make_message_bags<output_ports>::type output() const {
               typename make_message_bags<output_ports>::type bags;
-              Message_t rightMotorOut1, rightMotorOut2, leftMotorOut1, leftMotorOut2;  
+              Message_t rightMotorOut1;
+              Message_t rightMotorOut2;
+              Message_t leftMotorOut1;
+              Message_t leftMotorOut2;  
+
               switch(state.dir){
                 case DriveState::right:
                   rightMotorOut1.value = 1;
@@ -142,6 +151,8 @@ enum DriveState {right, straight, left, stop};
 
             // time_advance function
             TIME time_advance() const { 
+              if(state.prop)
+                return TIME("00:00:00");
               return std::numeric_limits<TIME>::infinity();
             }
 
