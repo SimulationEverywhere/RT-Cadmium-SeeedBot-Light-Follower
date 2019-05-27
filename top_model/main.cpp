@@ -179,10 +179,22 @@ CoupledModelPtr TOP = std::make_shared<cadmium::dynamic::modeling::coupled<TIME>
       DigitalOut leftMotorEn(D10);
       rightMotorEn = 1;
       leftMotorEn = 1;
+
+      // DigitalOut r1(D8);
+      // DigitalOut r2(D11);
+      // DigitalOut l1(D12);
+      // DigitalOut l2(D13);
+      // r1 = 1;
+      // r2 = 0;
+      // l1 = 1;
+      // l2 = 0;
+      //while(1);
     #endif
 
-    cadmium::dynamic::engine::runner<NDTime, state> r(TOP, {0});
+    cadmium::dynamic::engine::runner<NDTime, cadmium::logger::not_logger> r(TOP, {0});
 
     r.run_until(NDTime("00:10:00:000"));
-    return 0;
+    #ifndef ECADMIUM
+      return 0;
+    #endif
 }
