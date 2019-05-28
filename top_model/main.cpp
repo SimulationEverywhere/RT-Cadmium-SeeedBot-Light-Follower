@@ -19,7 +19,8 @@
 
 #include "../data_structures/message.hpp"
 #include "../atomics/digitalInput.hpp"
-#include "../atomics/analogOutput.hpp"
+#include "../atomics/pwmOutput.hpp"
+#include "../atomics/digitalOutput.hpp"
 
 #include "../atomics/seeedBotDriver.hpp"
 
@@ -119,30 +120,30 @@ AtomicModelPtr leftIR = cadmium::dynamic::translate::make_dynamic_atomic_model<D
 #endif
 
 /********************************************/
-/****** AnalogOutput1 *******************/
+/****** PwmOutput1 *******************/
 /********************************************/
 #ifdef ECADMIUM
-AtomicModelPtr rightMotor1 = cadmium::dynamic::translate::make_dynamic_atomic_model<AnalogOutput, TIME>("rightMotor1", D8);
+AtomicModelPtr rightMotor1 = cadmium::dynamic::translate::make_dynamic_atomic_model<PwmOutput, TIME>("rightMotor1", D8);
 #else
-AtomicModelPtr rightMotor1 = cadmium::dynamic::translate::make_dynamic_atomic_model<AnalogOutput, TIME>("rightMotor1");
+AtomicModelPtr rightMotor1 = cadmium::dynamic::translate::make_dynamic_atomic_model<PwmOutput, TIME>("rightMotor1");
 #endif
 
 #ifdef ECADMIUM
-AtomicModelPtr rightMotor2 = cadmium::dynamic::translate::make_dynamic_atomic_model<AnalogOutput, TIME>("rightMotor2", D11);
+AtomicModelPtr rightMotor2 = cadmium::dynamic::translate::make_dynamic_atomic_model<DigitalOutput, TIME>("rightMotor2", D11);
 #else
-AtomicModelPtr rightMotor2 = cadmium::dynamic::translate::make_dynamic_atomic_model<AnalogOutput, TIME>("rightMotor2");
+AtomicModelPtr rightMotor2 = cadmium::dynamic::translate::make_dynamic_atomic_model<DigitalOutput, TIME>("rightMotor2");
 #endif
 
 #ifdef ECADMIUM
-AtomicModelPtr leftMotor1 = cadmium::dynamic::translate::make_dynamic_atomic_model<AnalogOutput, TIME>("leftMotor1", D12);
+AtomicModelPtr leftMotor1 = cadmium::dynamic::translate::make_dynamic_atomic_model<PwmOutput, TIME>("leftMotor1", D12);
 #else
-AtomicModelPtr leftMotor1 = cadmium::dynamic::translate::make_dynamic_atomic_model<AnalogOutput, TIME>("leftMotor1");
+AtomicModelPtr leftMotor1 = cadmium::dynamic::translate::make_dynamic_atomic_model<PwmOutput, TIME>("leftMotor1");
 #endif
 
 #ifdef ECADMIUM
-AtomicModelPtr leftMotor2 = cadmium::dynamic::translate::make_dynamic_atomic_model<AnalogOutput, TIME>("leftMotor2", D13);
+AtomicModelPtr leftMotor2 = cadmium::dynamic::translate::make_dynamic_atomic_model<DigitalOutput, TIME>("leftMotor2", D13);
 #else
-AtomicModelPtr leftMotor2 = cadmium::dynamic::translate::make_dynamic_atomic_model<AnalogOutput, TIME>("leftMotor2");
+AtomicModelPtr leftMotor2 = cadmium::dynamic::translate::make_dynamic_atomic_model<DigitalOutput, TIME>("leftMotor2");
 #endif
 
 /************************/
@@ -154,10 +155,10 @@ cadmium::dynamic::modeling::Models submodels_TOP =  {seeedBotDriver, rightIR, ce
 cadmium::dynamic::modeling::EICs eics_TOP = {};
 cadmium::dynamic::modeling::EOCs eocs_TOP = {};
 cadmium::dynamic::modeling::ICs ics_TOP = {
-   cadmium::dynamic::translate::make_IC<seeedBotDriver_defs::rightMotor1, analogOutput_defs::in>("seeedBotDriver","rightMotor1"),
-   cadmium::dynamic::translate::make_IC<seeedBotDriver_defs::rightMotor2, analogOutput_defs::in>("seeedBotDriver","rightMotor2"),
-   cadmium::dynamic::translate::make_IC<seeedBotDriver_defs::leftMotor1, analogOutput_defs::in>("seeedBotDriver","leftMotor1"),
-   cadmium::dynamic::translate::make_IC<seeedBotDriver_defs::leftMotor2, analogOutput_defs::in>("seeedBotDriver","leftMotor2"),
+   cadmium::dynamic::translate::make_IC<seeedBotDriver_defs::rightMotor1, pwmOutput_defs::in>("seeedBotDriver","rightMotor1"),
+   cadmium::dynamic::translate::make_IC<seeedBotDriver_defs::rightMotor2, digitalOutput_defs::in>("seeedBotDriver","rightMotor2"),
+   cadmium::dynamic::translate::make_IC<seeedBotDriver_defs::leftMotor1, pwmOutput_defs::in>("seeedBotDriver","leftMotor1"),
+   cadmium::dynamic::translate::make_IC<seeedBotDriver_defs::leftMotor2, digitalOutput_defs::in>("seeedBotDriver","leftMotor2"),
    cadmium::dynamic::translate::make_IC<digitalInput_defs::out, seeedBotDriver_defs::rightIR>("rightIR", "seeedBotDriver"),
    cadmium::dynamic::translate::make_IC<digitalInput_defs::out, seeedBotDriver_defs::leftIR>("leftIR", "seeedBotDriver"),
    cadmium::dynamic::translate::make_IC<digitalInput_defs::out, seeedBotDriver_defs::centerIR>("centerIR", "seeedBotDriver")
@@ -176,7 +177,6 @@ CoupledModelPtr TOP = std::make_shared<cadmium::dynamic::modeling::coupled<TIME>
 
     #ifdef ECADMIUM
       //Enable the motors:
-      AnalogOut test(A2);
       DigitalOut rightMotorEn(D9);
       DigitalOut leftMotorEn(D10);
       rightMotorEn = 1;

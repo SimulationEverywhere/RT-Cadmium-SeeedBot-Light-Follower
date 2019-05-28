@@ -108,7 +108,8 @@ enum DriveState {right = 0, straight = 1, left = 2, stop = 3};
               Message_t rightMotorOut2;
               Message_t leftMotorOut1;
               Message_t leftMotorOut2;  
-
+              //#define PWM
+              #ifdef PWM
               switch(state.dir){
                 case DriveState::right:
                   rightMotorOut1.value = 0.5;
@@ -139,6 +140,38 @@ enum DriveState {right = 0, straight = 1, left = 2, stop = 3};
                   leftMotorOut2.value = 0;
                 break;
               }
+              #else
+              switch(state.dir){
+                case DriveState::right:
+                  rightMotorOut1.value = 1;
+                  rightMotorOut2.value = 0;
+                  leftMotorOut1.value = 1;
+                  leftMotorOut2.value = 1;                
+                break;
+
+                case DriveState::left:
+                  rightMotorOut1.value = 1;
+                  rightMotorOut2.value = 1;
+                  leftMotorOut1.value = 1;
+                  leftMotorOut2.value = 0;
+                break;
+
+                case DriveState::straight:
+                  rightMotorOut1.value = 1;
+                  rightMotorOut2.value = 0;
+                  leftMotorOut1.value = 1;
+                  leftMotorOut2.value = 0;
+                break;
+
+                case DriveState::stop:
+                default:
+                  rightMotorOut1.value = 0;
+                  rightMotorOut2.value = 0;
+                  leftMotorOut1.value = 0;
+                  leftMotorOut2.value = 0;
+                break;
+              }
+              #endif
 
               get_messages<typename defs::rightMotor1>(bags).push_back(rightMotorOut1);
               get_messages<typename defs::rightMotor2>(bags).push_back(rightMotorOut2);
