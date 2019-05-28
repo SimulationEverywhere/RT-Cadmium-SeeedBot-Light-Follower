@@ -19,6 +19,7 @@
 
 #include "../data_structures/message.hpp"
 #include "../atomics/digitalInput.hpp"
+#include "../atomics/analogInput.hpp"
 #include "../atomics/pwmOutput.hpp"
 #include "../atomics/digitalOutput.hpp"
 
@@ -27,6 +28,8 @@
 #ifdef ECADMIUM
 #include "../mbed.h"
 #endif
+
+#define SCARED_OF_THE_DARK 1
 
 using namespace std;
 
@@ -43,7 +46,8 @@ void run_app();
 #endif
 
 int main(int argc, char ** argv) {
-  #ifdef ECADMIUM
+
+#ifdef ECADMIUM
   app_thread.start(&run_app);
   // Let the main thread die on the embedded platform. 
 }
@@ -99,7 +103,7 @@ using CoupledModelPtr=std::shared_ptr<cadmium::dynamic::modeling::coupled<TIME>>
 AtomicModelPtr seeedBotDriver = cadmium::dynamic::translate::make_dynamic_atomic_model<SeeedBotDriver, TIME>("seeedBotDriver");
 
 /********************************************/
-/****** DigitalInput1 *******************/
+/****** Input *******************/
 /********************************************/
 #ifdef ECADMIUM
 AtomicModelPtr rightIR = cadmium::dynamic::translate::make_dynamic_atomic_model<DigitalInput, TIME>("rightIR", A0);
@@ -119,8 +123,15 @@ AtomicModelPtr leftIR = cadmium::dynamic::translate::make_dynamic_atomic_model<D
 AtomicModelPtr leftIR = cadmium::dynamic::translate::make_dynamic_atomic_model<DigitalInput, TIME>("leftIR");
 #endif
 
+#ifdef SCARED_OF_THE_DARK
+#ifdef ECADMIUM
+AtomicModelPtr lightSensor = cadmium::dynamic::translate::make_dynamic_atomic_model<AnalogInput, TIME>("lightSensor", A5);
+#else
+AtomicModelPtr lightSensor = cadmium::dynamic::translate::make_dynamic_atomic_model<AnalogInput, TIME>("lightSensor");
+#endif
+#endif
 /********************************************/
-/****** PwmOutput1 *******************/
+/****** Output *******************/
 /********************************************/
 #ifdef ECADMIUM
 AtomicModelPtr rightMotor1 = cadmium::dynamic::translate::make_dynamic_atomic_model<PwmOutput, TIME>("rightMotor1", D8);
@@ -151,7 +162,11 @@ AtomicModelPtr leftMotor2 = cadmium::dynamic::translate::make_dynamic_atomic_mod
 /************************/
 cadmium::dynamic::modeling::Ports iports_TOP = {};
 cadmium::dynamic::modeling::Ports oports_TOP = {};
+#ifdef SCARED_OF_THE_DARK
+cadmium::dynamic::modeling::Models submodels_TOP =  {lightSensor, seeedBotDriver, rightIR, centerIR, leftIR, rightMotor1, rightMotor2, leftMotor1, leftMotor2};
+#else
 cadmium::dynamic::modeling::Models submodels_TOP =  {seeedBotDriver, rightIR, centerIR, leftIR, rightMotor1, rightMotor2, leftMotor1, leftMotor2};
+#endif
 cadmium::dynamic::modeling::EICs eics_TOP = {};
 cadmium::dynamic::modeling::EOCs eocs_TOP = {};
 cadmium::dynamic::modeling::ICs ics_TOP = {
@@ -160,6 +175,9 @@ cadmium::dynamic::modeling::ICs ics_TOP = {
    cadmium::dynamic::translate::make_IC<seeedBotDriver_defs::leftMotor1, pwmOutput_defs::in>("seeedBotDriver","leftMotor1"),
    cadmium::dynamic::translate::make_IC<seeedBotDriver_defs::leftMotor2, digitalOutput_defs::in>("seeedBotDriver","leftMotor2"),
    cadmium::dynamic::translate::make_IC<digitalInput_defs::out, seeedBotDriver_defs::rightIR>("rightIR", "seeedBotDriver"),
+   #ifdef SCARED_OF_THE_DARK
+   cadmium::dynamic::translate::make_IC<analogInput_defs::out, seeedBotDriver_defs::lightSensor>("lightSensor", "seeedBotDriver"),
+   #endif
    cadmium::dynamic::translate::make_IC<digitalInput_defs::out, seeedBotDriver_defs::leftIR>("leftIR", "seeedBotDriver"),
    cadmium::dynamic::translate::make_IC<digitalInput_defs::out, seeedBotDriver_defs::centerIR>("centerIR", "seeedBotDriver")
 };
@@ -181,6 +199,9 @@ CoupledModelPtr TOP = std::make_shared<cadmium::dynamic::modeling::coupled<TIME>
       DigitalOut leftMotorEn(D10);
       rightMotorEn = 1;
       leftMotorEn = 1;
+      // AnalogIn pinA5(A5);
+      // while(1)
+      //   printf("%f\n", pinA5.read());
     #endif
 
     cadmium::dynamic::engine::runner<NDTime, cadmium::logger::not_logger> r(TOP, {0});

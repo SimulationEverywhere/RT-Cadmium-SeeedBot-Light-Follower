@@ -21,6 +21,7 @@
 #include <random>
 
 #include "../data_structures/message.hpp"
+#define SCARED_OF_THE_DARK 1
 
 using namespace cadmium;
 using namespace std;
@@ -36,6 +37,9 @@ enum DriveState {right = 0, straight = 1, left = 2, stop = 3};
         struct rightIR : public in_port<Message_t> { };
         struct centerIR : public in_port<Message_t> { };
         struct leftIR : public in_port<Message_t> { };
+        #ifdef SCARED_OF_THE_DARK
+        struct lightSensor : public in_port<Message_t> { };
+        #endif
     };
 
     template<typename TIME>
@@ -60,8 +64,11 @@ enum DriveState {right = 0, straight = 1, left = 2, stop = 3};
             }; 
             state_type state;
             // ports definition
-
+            #ifdef SCARED_OF_THE_DARK
+            using input_ports=std::tuple<typename defs::rightIR, typename defs::lightSensor, typename defs::centerIR, typename defs::leftIR>;
+            #else
             using input_ports=std::tuple<typename defs::rightIR, typename defs::centerIR, typename defs::leftIR>;
+            #endif
             using output_ports=std::tuple<typename defs::rightMotor1, typename defs::rightMotor2, typename defs::leftMotor1, typename defs::leftMotor2>;
 
             // internal transition
@@ -72,6 +79,7 @@ enum DriveState {right = 0, straight = 1, left = 2, stop = 3};
 
             // external transition
             void external_transition(TIME e, typename make_message_bags<input_ports>::type mbs) { 
+              float light = 0;
               for(const auto &x : get_messages<typename defs::rightIR>(mbs)){
                 state.rightIR = (x.value == 0);
               }
@@ -81,7 +89,11 @@ enum DriveState {right = 0, straight = 1, left = 2, stop = 3};
               for(const auto &x : get_messages<typename defs::leftIR>(mbs)){
                 state.leftIR = (x.value == 0);
               }
-
+              #ifdef SCARED_OF_THE_DARK
+              for(const auto &x : get_messages<typename defs::lightSensor>(mbs)){
+                light = x.value;
+              }
+              #endif
               if((!(state.rightIR ^ state.leftIR ^ state.centerIR) && !(!state.rightIR && !state.leftIR && !state.centerIR)) || (state.rightIR && state.leftIR && state.centerIR)) {
                 //This happens when no IR sensors see the line and if two or more IR sensors see the line.
                 state.dir = DriveState::stop;
@@ -92,6 +104,11 @@ enum DriveState {right = 0, straight = 1, left = 2, stop = 3};
               } else {
                 state.dir = DriveState::straight;
               }
+              #ifdef SCARED_OF_THE_DARK
+              if (light < 0.3) {
+                state.dir = DriveState::stop;
+              }
+              #endif
               state.prop = true;
             }
 
@@ -108,8 +125,8 @@ enum DriveState {right = 0, straight = 1, left = 2, stop = 3};
               Message_t rightMotorOut2;
               Message_t leftMotorOut1;
               Message_t leftMotorOut2;  
-              //#define PWM
-              #ifdef PWM
+              #define PWM_DRIVER
+              #ifdef PWM_DRIVER
               switch(state.dir){
                 case DriveState::right:
                   rightMotorOut1.value = 0.5;
