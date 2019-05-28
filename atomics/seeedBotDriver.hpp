@@ -1,6 +1,5 @@
 /**
-* or:
-* Cadmium implementation of CD++ or atomic model
+* 
 */
 
 #ifndef BOOST_SIMULATION_PDEVS_BLINKY_HPP
@@ -112,7 +111,7 @@ enum DriveState {right = 0, straight = 1, left = 2, stop = 3};
 
               switch(state.dir){
                 case DriveState::right:
-                  rightMotorOut1.value = 1;
+                  rightMotorOut1.value = 0.5;
                   rightMotorOut2.value = 0;
                   leftMotorOut1.value = 1;
                   leftMotorOut2.value = 1;                
@@ -121,14 +120,14 @@ enum DriveState {right = 0, straight = 1, left = 2, stop = 3};
                 case DriveState::left:
                   rightMotorOut1.value = 1;
                   rightMotorOut2.value = 1;
-                  leftMotorOut1.value = 1;
+                  leftMotorOut1.value = 0.5;
                   leftMotorOut2.value = 0;
                 break;
 
                 case DriveState::straight:
-                  rightMotorOut1.value = 1;
+                  rightMotorOut1.value = 0.5;
                   rightMotorOut2.value = 0;
-                  leftMotorOut1.value = 1;
+                  leftMotorOut1.value = 0.5;
                   leftMotorOut2.value = 0;
                 break;
 
