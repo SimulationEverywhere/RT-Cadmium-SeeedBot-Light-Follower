@@ -1,6 +1,9 @@
 /**
-* or:
-* Cadmium implementation of CD++ or atomic model
+* Ben Earle
+* ARSLab - Carleton University
+*
+* Digital Input:
+* Model to interface with a digital Input pin for Embedded Cadmium.
 */
 
 #ifndef BOOST_SIMULATION_PDEVS_DIGITALINPUT_HPP
@@ -24,104 +27,104 @@
 #include "../data_structures/message.hpp"
 
 #ifdef ECADMIUM
-#include "../mbed.h"
-#endif
+  //This class will interface with a digital input pin.
+  #include "../mbed.h"
 
-using namespace cadmium;
-using namespace std;
+  using namespace cadmium;
+  using namespace std;
 
-//Port definition
-    struct digitalInput_defs{
-        struct out : public out_port<Message_t> {
-        };
-    };
+  //Port definition
+  struct digitalInput_defs{
+      struct out : public out_port<Message_t> { };
+  };
 
-    template<typename TIME>
-    class DigitalInput {
-        using defs=digitalInput_defs; // putting definitions in context
-        public:
-            //Parameters to be overwriten when instantiating the atomic model
-            #ifdef ECADMIUM
-              DigitalIn* digiPin;
-            #endif
+  template<typename TIME>
+  class DigitalInput {
+    using defs=digitalInput_defs; // putting definitions in context
 
-            TIME   pollingRate;
-            // default c onstructor
-            DigitalInput() noexcept{
-              pollingRate = TIME("00:00:00:100");
-              state.output = false;
-              #ifdef ECADMIUM
-              digiPin = new DigitalIn(D0);
-              state.output = digiPin->read();
-              #endif
-              state.last = state.output;
-            }
+    public:
+    //Parameters to be overwriten when instantiating the atomic model
+    DigitalIn* digiPin;
+    TIME   pollingRate;
+    // default constructor
+    DigitalInput() noexcept {
+      DigitalInput(D0, TIME("00:00:00:100"));
+    }
+    DigitalInput(PinName pin) {
+      DigitalInput(pin, TIME("00:00:00:100"));
+    }
+    DigitalInput(PinName pin, TIME rate) {
+      pollingRate = rate;
+      digiPin = new DigitalIn(pin);
+      state.output = digiPin->read();
+      state.last = state.output;
+    }
 
-            #ifdef ECADMIUM
-            DigitalInput(PinName pin) {
-              pollingRate = TIME("00:00:00:100");
-              digiPin = new DigitalIn(pin);
-              state.output = digiPin->read();
-              state.last = state.output;
-            }
-            DigitalInput(PinName pin, TIME rate) {
-              pollingRate = rate;
-              digiPin = new DigitalIn(pin);
-              state.output = digiPin->read();
-              state.last = state.output;
-            }
-            #endif
-            
-            // state definition
-            struct state_type{
-              bool output;
-              bool last;
-            }; 
-            state_type state;
-            // ports definition
+    // state definition
+    struct state_type{
+      bool output;
+      bool last;
+    }; 
+    state_type state;
 
-            using input_ports=std::tuple<>;
-            using output_ports=std::tuple<typename defs::out>;
+    // ports definition
+    using input_ports=std::tuple<>;
+    using output_ports=std::tuple<typename defs::out>;
 
-            // internal transition
-            void internal_transition() {
-              #ifdef ECADMIUM
-              state.last = state.output;
-              state.output = digiPin->read();
-              #endif
-            }
+    // internal transition
+    void internal_transition() {
+      state.last = state.output;
+      state.output = digiPin->read();
+    }
 
-            // external transition
-            void external_transition(TIME e, typename make_message_bags<input_ports>::type mbs) { 
-            }
-            // confluence transition
-            void confluence_transition(TIME e, typename make_message_bags<input_ports>::type mbs) {
-                internal_transition();
-                external_transition(TIME(), std::move(mbs));
-            }
+    // external transition
+    void external_transition(TIME e, typename make_message_bags<input_ports>::type mbs) { 
+    }
+    // confluence transition
+    void confluence_transition(TIME e, typename make_message_bags<input_ports>::type mbs) {
+        internal_transition();
+        external_transition(TIME(), std::move(mbs));
+    }
 
-            // output function
-            typename make_message_bags<output_ports>::type output() const {
-              typename make_message_bags<output_ports>::type bags;
-              if(state.last != state.output) {
-                Message_t out;              
-                out.value = (state.output ? 1 : 0);
-                get_messages<typename defs::out>(bags).push_back(out);
-              }
-    
-              return bags;
-            }
+    // output function
+    typename make_message_bags<output_ports>::type output() const {
+      typename make_message_bags<output_ports>::type bags;
+      if(state.last != state.output) {
+        Message_t out;              
+        out.value = (state.output ? 1 : 0);
+        get_messages<typename defs::out>(bags).push_back(out);
+      }
 
-            // time_advance function
-            TIME time_advance() const {     
-                return pollingRate;
-            }
+      return bags;
+    }
 
-            friend std::ostringstream& operator<<(std::ostringstream& os, const typename DigitalInput<TIME>::state_type& i) {
-              os << "Input Pin: " << (i.output ? 1 : 0); 
-              return os;
-            }
-        };     
+    // time_advance function
+    TIME time_advance() const {     
+        return pollingRate;
+    }
 
+    friend std::ostringstream& operator<<(std::ostringstream& os, const typename DigitalInput<TIME>::state_type& i) {
+      os << "Input Pin: " << (i.output ? 1 : 0); 
+      return os;
+    }
+  };     
+#else
+  #include "../atomics/iestream.hpp"
+  using namespace cadmium;
+  using namespace std;
+
+  //Port definition
+  struct digitalInput_defs{
+      struct out : public out_port<Message_t> { };
+  };
+
+  template<typename TIME>
+  class DigitalInput : public iestream_input<Message_t,TIME, digitalInput_defs>{
+    //sing defs=; // putting definitions in context
+    public:
+      DigitalInput() = default;
+      DigitalInput(const char* file_path) : iestream_input<Message_t,TIME, digitalInput_defs>(file_path) {}
+  };
+#endif // ECADMIUM
 
 #endif // BOOST_SIMULATION_PDEVS_DIGITALINPUT_HPP

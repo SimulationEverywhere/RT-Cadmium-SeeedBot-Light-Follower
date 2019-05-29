@@ -21,7 +21,7 @@
 #include <random>
 
 #include "../data_structures/message.hpp"
-#define SCARED_OF_THE_DARK 1
+//#define SCARED_OF_THE_DARK
 
 using namespace cadmium;
 using namespace std;
@@ -125,8 +125,10 @@ enum DriveState {right = 0, straight = 1, left = 2, stop = 3};
               Message_t rightMotorOut2;
               Message_t leftMotorOut1;
               Message_t leftMotorOut2;  
+              
               #define PWM_DRIVER
               #ifdef PWM_DRIVER
+
               switch(state.dir){
                 case DriveState::right:
                   rightMotorOut1.value = 0.5;
@@ -157,7 +159,9 @@ enum DriveState {right = 0, straight = 1, left = 2, stop = 3};
                   leftMotorOut2.value = 0;
                 break;
               }
+
               #else
+
               switch(state.dir){
                 case DriveState::right:
                   rightMotorOut1.value = 1;
@@ -188,7 +192,8 @@ enum DriveState {right = 0, straight = 1, left = 2, stop = 3};
                   leftMotorOut2.value = 0;
                 break;
               }
-              #endif
+
+              #endif //PWM_DRIVER
 
               get_messages<typename defs::rightMotor1>(bags).push_back(rightMotorOut1);
               get_messages<typename defs::rightMotor2>(bags).push_back(rightMotorOut2);

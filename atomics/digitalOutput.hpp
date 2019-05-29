@@ -1,6 +1,11 @@
 /**
-* 
+* Ben Earle
+* ARSLab - Carleton University
+*
+* Digital Output:
+* Model to interface with a digital output pin for Embedded Cadmium.
 */
+
 
 #ifndef BOOST_SIMULATION_PDEVS_DIGITALOUTPUT_HPP
 #define BOOST_SIMULATION_PDEVS_DIGITALOUTPUT_HPP
@@ -58,7 +63,7 @@ using namespace std;
               digiPin = new DigitalOut(pin);
             }
             #endif
-            
+
             // state definition
             struct state_type{
               bool output;
@@ -80,6 +85,8 @@ using namespace std;
               }
               #ifdef ECADMIUM
               digiPin->write(state.output ? 1 : 0);
+              else
+
               #endif
             }
             // confluence transition
