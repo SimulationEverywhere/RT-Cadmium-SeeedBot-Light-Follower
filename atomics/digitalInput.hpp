@@ -48,7 +48,7 @@
     TIME   pollingRate;
     // default constructor
     DigitalInput() noexcept {
-      DigitalInput(D0, TIME("00:00:00:100"));
+      DigitalInput(NULL, TIME("00:00:00:100"));
     }
     DigitalInput(PinName pin) {
       DigitalInput(pin, TIME("00:00:00:100"));
@@ -79,6 +79,7 @@
 
     // external transition
     void external_transition(TIME e, typename make_message_bags<input_ports>::type mbs) { 
+      throw std::logic_error("External transition called in a model with no input ports");
     }
     // confluence transition
     void confluence_transition(TIME e, typename make_message_bags<input_ports>::type mbs) {
@@ -94,7 +95,6 @@
         out.value = (state.output ? 1 : 0);
         get_messages<typename defs::out>(bags).push_back(out);
       }
-
       return bags;
     }
 
@@ -109,7 +109,7 @@
     }
   };     
 #else
-  #include "../atomics/iestream.hpp"
+  #include <cadmium/io/iestream.hpp>
   using namespace cadmium;
   using namespace std;
 
@@ -120,7 +120,6 @@
 
   template<typename TIME>
   class DigitalInput : public iestream_input<Message_t,TIME, digitalInput_defs>{
-    //sing defs=; // putting definitions in context
     public:
       DigitalInput() = default;
       DigitalInput(const char* file_path) : iestream_input<Message_t,TIME, digitalInput_defs>(file_path) {}

@@ -28,9 +28,10 @@
 #ifdef ECADMIUM
   #include "../mbed.h"
 #else
-  const char* A0 = "A0_RightIR_In.txt";
-  const char* A2 = "A2_CenterIR_In.txt";
-  const char* D4 = "D4_LeftIR_In.txt";
+  const char* A0 = "./inputs/A0_RightIR_In.txt";
+  const char* A2 = "./inputs/A2_CenterIR_In.txt";
+  const char* D4 = "./inputs/D4_LeftIR_In.txt";
+  const char* A5 = "./inputs/A5_LightSensor_In.txt";
   //#define D11 "D11_RightMotor2_Out.txt"
 #endif
 
@@ -121,11 +122,7 @@ int main(int argc, char ** argv) {
   AtomicModelPtr leftIR = cadmium::dynamic::translate::make_dynamic_atomic_model<DigitalInput, TIME>("leftIR", D4);
   
   #ifdef SCARED_OF_THE_DARK
-  #ifdef ECADMIUM
   AtomicModelPtr lightSensor = cadmium::dynamic::translate::make_dynamic_atomic_model<AnalogInput, TIME>("lightSensor", A5);
-  #else
-  AtomicModelPtr lightSensor = cadmium::dynamic::translate::make_dynamic_atomic_model<AnalogInput, TIME>("lightSensor");
-  #endif
   #endif
 /********************************************/
 /***************** Output *******************/
