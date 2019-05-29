@@ -85,7 +85,7 @@ using namespace std;
               }
               #ifdef ECADMIUM
               digiPin->write(state.output ? 1 : 0);
-              else
+              
 
               #endif
             }

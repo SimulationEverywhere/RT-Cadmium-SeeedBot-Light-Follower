@@ -12,10 +12,10 @@
 #include <cadmium/engine/pdevs_dynamic_runner.hpp>
 #include <cadmium/logger/tuple_to_ostream.hpp>
 #include <cadmium/logger/common_loggers.hpp>
+#include <cadmium/io/iestream.hpp>
 
 
-#include "../vendor/NDTime.hpp"
-#include "../atomics/iestream.hpp"
+#include <NDTime.hpp>
 
 #include "../data_structures/message.hpp"
 #include "../atomics/digitalInput.hpp"
