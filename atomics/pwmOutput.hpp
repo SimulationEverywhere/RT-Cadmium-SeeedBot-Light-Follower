@@ -46,6 +46,7 @@
     
     // default constructor
     PwmOutput() noexcept{
+      MBED_ASSERT(false);
       throw std::logic_error("Output atomic model requires a pin definition");
     }
 

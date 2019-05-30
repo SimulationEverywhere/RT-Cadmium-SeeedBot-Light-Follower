@@ -177,8 +177,8 @@ int main(int argc, char ** argv) {
     leftMotorEn = 1;
   #endif
 
-  //cadmium::dynamic::engine::runner<NDTime, cadmium::logger::not_logger> r(TOP, {0});
-  cadmium::dynamic::engine::runner<NDTime, logger_top> r(TOP, {0});
+  cadmium::dynamic::engine::runner<NDTime, cadmium::logger::not_logger> r(TOP, {0});
+  //cadmium::dynamic::engine::runner<NDTime, logger_top> r(TOP, {0});
   r.run_until(NDTime("00:10:00:000"));
 
   #ifndef ECADMIUM

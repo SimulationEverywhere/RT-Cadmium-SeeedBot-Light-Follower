@@ -45,7 +45,8 @@
     TIME pollingRate;
     // default c onstructor
     AnalogInput() noexcept{ 
-      throw std::logic_error("Input atomic model requires a pin definition");
+      MBED_ASSERT(false);
+      //throw std::logic_error("Input atomic model requires a pin definition");
     }    
     AnalogInput(PinName pin) noexcept{
       AnalogInput(pin, TIME("00:00:00:100"));
@@ -75,8 +76,9 @@
     }
 
     // external transition
-    void external_transition(TIME e, typename make_message_bags<input_ports>::type mbs) { 
-      throw std::logic_error("External transition called in a model with no input ports");
+    void external_transition(TIME e, typename make_message_bags<input_ports>::type mbs) {
+      MBED_ASSERT(false); 
+      //throw std::logic_error("External transition called in a model with no input ports");
     }
     // confluence transition
     void confluence_transition(TIME e, typename make_message_bags<input_ports>::type mbs) {

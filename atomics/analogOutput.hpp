@@ -49,6 +49,7 @@
     
     // default c onstructor
     AnalogOutput() noexcept{
+      MBED_ASSERT(false);
       throw std::logic_error("Output atomic model requires a pin definition");
     }
 

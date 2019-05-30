@@ -48,6 +48,7 @@
     TIME   pollingRate;
     // default constructor
     DigitalInput() noexcept {
+      MBED_ASSERT(false);
       throw std::logic_error("Input atomic model requires a pin definition");
     }
     DigitalInput(PinName pin) {
@@ -79,6 +80,7 @@
 
     // external transition
     void external_transition(TIME e, typename make_message_bags<input_ports>::type mbs) { 
+      MBED_ASSERT(false);
       throw std::logic_error("External transition called in a model with no input ports");
     }
     // confluence transition

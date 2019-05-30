@@ -47,6 +47,7 @@
     
     // default c onstructor
     DigitalOutput() noexcept{
+      MBED_ASSERT(false);
       throw std::logic_error("Output atomic model requires a pin definition");
     }
 
@@ -66,8 +67,7 @@
     using output_ports=std::tuple<>;
 
     // internal transition
-    void internal_transition() {
-    }
+    void internal_transition() {}
 
     // external transition
     void external_transition(TIME e, typename make_message_bags<input_ports>::type mbs) { 
