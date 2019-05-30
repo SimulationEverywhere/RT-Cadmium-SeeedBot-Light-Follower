@@ -20,8 +20,7 @@
 #include <limits>
 #include <random>
 
-#include "../data_structures/message.hpp"
-#define SCARED_OF_THE_DARK
+ //#define SCARED_OF_THE_DARK
 
 using namespace cadmium;
 using namespace std;
@@ -29,16 +28,16 @@ enum DriveState {right = 0, straight = 1, left = 2, stop = 3};
 //Port definition
     struct seeedBotDriver_defs {
         //Output ports
-        struct rightMotor1 : public out_port<Message_t> { };
-        struct rightMotor2 : public out_port<Message_t> { };
-        struct leftMotor1 : public out_port<Message_t> { };
-        struct leftMotor2 : public out_port<Message_t> { };
+        struct rightMotor1 : public out_port<float> { };
+        struct rightMotor2 : public out_port<bool> { };
+        struct leftMotor1 : public out_port<float> { };
+        struct leftMotor2 : public out_port<bool> { };
         //Input ports
-        struct rightIR : public in_port<Message_t> { };
-        struct centerIR : public in_port<Message_t> { };
-        struct leftIR : public in_port<Message_t> { };
+        struct rightIR : public in_port<bool> { };
+        struct centerIR : public in_port<bool> { };
+        struct leftIR : public in_port<bool> { };
         #ifdef SCARED_OF_THE_DARK
-        struct lightSensor : public in_port<Message_t> { };
+        struct lightSensor : public in_port<float> { };
         #endif
     };
 
@@ -81,17 +80,17 @@ enum DriveState {right = 0, straight = 1, left = 2, stop = 3};
             void external_transition(TIME e, typename make_message_bags<input_ports>::type mbs) { 
               float light = 0;
               for(const auto &x : get_messages<typename defs::rightIR>(mbs)){
-                state.rightIR = (x.value == 0);
+                state.rightIR = !x;
               }
               for(const auto &x : get_messages<typename defs::centerIR>(mbs)){
-                state.centerIR = (x.value == 0);
+                state.centerIR = !x;
               }
               for(const auto &x : get_messages<typename defs::leftIR>(mbs)){
-                state.leftIR = (x.value == 0);
+                state.leftIR = !x;
               }
               #ifdef SCARED_OF_THE_DARK
               for(const auto &x : get_messages<typename defs::lightSensor>(mbs)){
-                light = x.value;
+                light = x;
               }
               #endif
               if((!(state.rightIR ^ state.leftIR ^ state.centerIR) && !(!state.rightIR && !state.leftIR && !state.centerIR)) || (state.rightIR && state.leftIR && state.centerIR)) {
@@ -121,79 +120,41 @@ enum DriveState {right = 0, straight = 1, left = 2, stop = 3};
             // output function
             typename make_message_bags<output_ports>::type output() const {
               typename make_message_bags<output_ports>::type bags;
-              Message_t rightMotorOut1;
-              Message_t rightMotorOut2;
-              Message_t leftMotorOut1;
-              Message_t leftMotorOut2;  
-              
-              #define PWM_DRIVER
-              #ifdef PWM_DRIVER
+              float rightMotorOut1;
+              bool rightMotorOut2;
+              float leftMotorOut1;
+              bool leftMotorOut2;  
 
               switch(state.dir){
                 case DriveState::right:
-                  rightMotorOut1.value = 0.5;
-                  rightMotorOut2.value = 0;
-                  leftMotorOut1.value = 1;
-                  leftMotorOut2.value = 1;                
+                  rightMotorOut1 = 0.5;
+                  rightMotorOut2 = 0;
+                  leftMotorOut1 = 1;
+                  leftMotorOut2 = 1;                
                 break;
 
                 case DriveState::left:
-                  rightMotorOut1.value = 1;
-                  rightMotorOut2.value = 1;
-                  leftMotorOut1.value = 0.5;
-                  leftMotorOut2.value = 0;
+                  rightMotorOut1 = 1;
+                  rightMotorOut2 = 1;
+                  leftMotorOut1 = 0.5;
+                  leftMotorOut2 = 0;
                 break;
 
                 case DriveState::straight:
-                  rightMotorOut1.value = 0.5;
-                  rightMotorOut2.value = 0;
-                  leftMotorOut1.value = 0.5;
-                  leftMotorOut2.value = 0;
+                  rightMotorOut1 = 0.5;
+                  rightMotorOut2 = 0;
+                  leftMotorOut1 = 0.5;
+                  leftMotorOut2 = 0;
                 break;
 
                 case DriveState::stop:
                 default:
-                  rightMotorOut1.value = 0;
-                  rightMotorOut2.value = 0;
-                  leftMotorOut1.value = 0;
-                  leftMotorOut2.value = 0;
+                  rightMotorOut1 = 0;
+                  rightMotorOut2 = 0;
+                  leftMotorOut1 = 0;
+                  leftMotorOut2 = 0;
                 break;
               }
-
-              #else
-
-              switch(state.dir){
-                case DriveState::right:
-                  rightMotorOut1.value = 1;
-                  rightMotorOut2.value = 0;
-                  leftMotorOut1.value = 1;
-                  leftMotorOut2.value = 1;                
-                break;
-
-                case DriveState::left:
-                  rightMotorOut1.value = 1;
-                  rightMotorOut2.value = 1;
-                  leftMotorOut1.value = 1;
-                  leftMotorOut2.value = 0;
-                break;
-
-                case DriveState::straight:
-                  rightMotorOut1.value = 1;
-                  rightMotorOut2.value = 0;
-                  leftMotorOut1.value = 1;
-                  leftMotorOut2.value = 0;
-                break;
-
-                case DriveState::stop:
-                default:
-                  rightMotorOut1.value = 0;
-                  rightMotorOut2.value = 0;
-                  leftMotorOut1.value = 0;
-                  leftMotorOut2.value = 0;
-                break;
-              }
-
-              #endif //PWM_DRIVER
 
               get_messages<typename defs::rightMotor1>(bags).push_back(rightMotorOut1);
               get_messages<typename defs::rightMotor2>(bags).push_back(rightMotorOut2);

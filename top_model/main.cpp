@@ -17,11 +17,10 @@
 
 #include <NDTime.hpp>
 
-#include "../data_structures/message.hpp"
-#include "../atomics/digitalInput.hpp"
-#include "../atomics/analogInput.hpp"
-#include "../atomics/pwmOutput.hpp"
-#include "../atomics/digitalOutput.hpp"
+#include <cadmium/embedded/io/digitalInput.hpp>
+#include <cadmium/embedded/io/analogInput.hpp>
+#include <cadmium/embedded/io/pwmOutput.hpp>
+#include <cadmium/embedded/io/digitalOutput.hpp>
 
 #include "../atomics/seeedBotDriver.hpp"
 
@@ -40,7 +39,7 @@
 
 // SCARED OF THE DARK definition is for the analog sensor demo.
 // If the analog sensor is not present then this definition should be commented out.
-#define SCARED_OF_THE_DARK
+// #define SCARED_OF_THE_DARK
 
 using namespace std;
 
@@ -146,13 +145,13 @@ int main(int argc, char ** argv) {
   cadmium::dynamic::modeling::EICs eics_TOP = {};
   cadmium::dynamic::modeling::EOCs eocs_TOP = {};
   cadmium::dynamic::modeling::ICs ics_TOP = {
-     #ifdef SCARED_OF_THE_DARK
-     cadmium::dynamic::translate::make_IC<analogInput_defs::out, seeedBotDriver_defs::lightSensor>("lightSensor", "seeedBotDriver"),
-     #endif
      cadmium::dynamic::translate::make_IC<seeedBotDriver_defs::rightMotor1, pwmOutput_defs::in>("seeedBotDriver","rightMotor1"),
      cadmium::dynamic::translate::make_IC<seeedBotDriver_defs::rightMotor2, digitalOutput_defs::in>("seeedBotDriver","rightMotor2"),
      cadmium::dynamic::translate::make_IC<seeedBotDriver_defs::leftMotor1, pwmOutput_defs::in>("seeedBotDriver","leftMotor1"),
      cadmium::dynamic::translate::make_IC<seeedBotDriver_defs::leftMotor2, digitalOutput_defs::in>("seeedBotDriver","leftMotor2"),
+     #ifdef SCARED_OF_THE_DARK
+     cadmium::dynamic::translate::make_IC<analogInput_defs::out, seeedBotDriver_defs::lightSensor>("lightSensor", "seeedBotDriver"),
+     #endif
      cadmium::dynamic::translate::make_IC<digitalInput_defs::out, seeedBotDriver_defs::rightIR>("rightIR", "seeedBotDriver"),
      cadmium::dynamic::translate::make_IC<digitalInput_defs::out, seeedBotDriver_defs::leftIR>("leftIR", "seeedBotDriver"),
      cadmium::dynamic::translate::make_IC<digitalInput_defs::out, seeedBotDriver_defs::centerIR>("centerIR", "seeedBotDriver")
@@ -177,8 +176,10 @@ int main(int argc, char ** argv) {
     leftMotorEn = 1;
   #endif
 
+  // Logs are currently blocking opperations. It is recommended to turn them off when embedding your application.
+  // They can be used for testing; however, keep in mind they will add extra delay to your model. 
   cadmium::dynamic::engine::runner<NDTime, cadmium::logger::not_logger> r(TOP, {0});
-  //cadmium::dynamic::engine::runner<NDTime, logger_top> r(TOP, {0});
+  //cadmium::dynamic::engine::runner<NDTime, log_all> r(TOP, {0});
   r.run_until(NDTime("00:10:00:000"));
 
   #ifndef ECADMIUM
