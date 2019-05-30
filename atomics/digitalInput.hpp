@@ -48,7 +48,7 @@
     TIME   pollingRate;
     // default constructor
     DigitalInput() noexcept {
-      DigitalInput(NULL, TIME("00:00:00:100"));
+      throw std::logic_error("Input atomic model requires a pin definition");
     }
     DigitalInput(PinName pin) {
       DigitalInput(pin, TIME("00:00:00:100"));

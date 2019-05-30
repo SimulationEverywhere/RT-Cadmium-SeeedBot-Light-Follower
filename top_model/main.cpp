@@ -28,11 +28,14 @@
 #ifdef ECADMIUM
   #include "../mbed.h"
 #else
-  const char* A0 = "./inputs/A0_RightIR_In.txt";
-  const char* A2 = "./inputs/A2_CenterIR_In.txt";
-  const char* D4 = "./inputs/D4_LeftIR_In.txt";
-  const char* A5 = "./inputs/A5_LightSensor_In.txt";
-  //#define D11 "D11_RightMotor2_Out.txt"
+  const char* A0  = "./inputs/A0_RightIR_In.txt";
+  const char* A2  = "./inputs/A2_CenterIR_In.txt";
+  const char* D4  = "./inputs/D4_LeftIR_In.txt";
+  const char* A5  = "./inputs/A5_LightSensor_In.txt";
+  const char* D8  = "./outputs/D8_RightMotor1_Out.txt";
+  const char* D11 = "./outputs/D11_RightMotor2_Out.txt";
+  const char* D12 = "./outputs/D12_LeftMotor1_Out.txt";
+  const char* D13 = "./outputs/D13_LeftMotor2_Out.txt";
 #endif
 
 // SCARED OF THE DARK definition is for the analog sensor demo.
@@ -49,42 +52,39 @@ using TIME = NDTime;
 // See below for reference:
 // https://os.mbed.com/questions/79584/Change-main-thread-stack-size/
 #ifdef ECADMIUM
-Thread app_thread(osPriorityNormal, 16*1024); // 16k stack
-void run_app();
+  Thread app_thread(osPriorityNormal, 16*1024); // 16k stack
+  void run_app();
 #endif
 
 int main(int argc, char ** argv) {
 
   //This will end the main thread and create a new one with more stack.
-  /********************************************************************/
   #ifdef ECADMIUM
     app_thread.start(&run_app);
       // Let the main thread die on the embedded platform. 
     }
     // run_app is only used for embedded threading, everything runs in main when simulated.
     void run_app(){
-  #endif
-/********************************************************************/
 
-  // all simulation timing and I/O streams are ommited when running embedded 
-  #ifndef ECADMIUM
+    //Logging is done over cout in ECADMIUM
+    struct oss_sink_provider{
+      static std::ostream& sink(){   
+        return cout;
+      }
+    };
+  #else 
+    // all simulation timing and I/O streams are ommited when running embedded 
+
     auto start = hclock::now(); //to measure simulation execution time
 
-/*************** Loggers *******************/
+    /*************** Loggers *******************/
 
-  static std::ofstream out_data("seed_bot_test_output.txt");
-  struct oss_sink_provider{
-    static std::ostream& sink(){   
-      return out_data;
-    }
-  };
-  #else 
-  //Logging is done over cout in ECADMIUM
-  struct oss_sink_provider{
-    static std::ostream& sink(){   
-      return cout;
-    }
-  };
+    static std::ofstream out_data("seeed_bot_test_output.txt");
+    struct oss_sink_provider{
+      static std::ostream& sink(){   
+        return out_data;
+      }
+    };
   #endif
 
   using info=cadmium::logger::logger<cadmium::logger::logger_info, cadmium::dynamic::logger::formatter<TIME>, oss_sink_provider>;
@@ -127,29 +127,11 @@ int main(int argc, char ** argv) {
 /********************************************/
 /***************** Output *******************/
 /********************************************/
-  #ifdef ECADMIUM
   AtomicModelPtr rightMotor1 = cadmium::dynamic::translate::make_dynamic_atomic_model<PwmOutput, TIME>("rightMotor1", D8);
-  #else
-  AtomicModelPtr rightMotor1 = cadmium::dynamic::translate::make_dynamic_atomic_model<PwmOutput, TIME>("rightMotor1");
-  #endif
-  
-  #ifdef ECADMIUM
   AtomicModelPtr rightMotor2 = cadmium::dynamic::translate::make_dynamic_atomic_model<DigitalOutput, TIME>("rightMotor2", D11);
-  #else
-  AtomicModelPtr rightMotor2 = cadmium::dynamic::translate::make_dynamic_atomic_model<DigitalOutput, TIME>("rightMotor2");
-  #endif
-  
-  #ifdef ECADMIUM
   AtomicModelPtr leftMotor1 = cadmium::dynamic::translate::make_dynamic_atomic_model<PwmOutput, TIME>("leftMotor1", D12);
-  #else
-  AtomicModelPtr leftMotor1 = cadmium::dynamic::translate::make_dynamic_atomic_model<PwmOutput, TIME>("leftMotor1");
-  #endif
-
-  #ifdef ECADMIUM
   AtomicModelPtr leftMotor2 = cadmium::dynamic::translate::make_dynamic_atomic_model<DigitalOutput, TIME>("leftMotor2", D13);
-  #else
-  AtomicModelPtr leftMotor2 = cadmium::dynamic::translate::make_dynamic_atomic_model<DigitalOutput, TIME>("leftMotor2");
-  #endif
+
 
 /************************/
 /*******TOP MODEL********/
@@ -196,7 +178,7 @@ int main(int argc, char ** argv) {
   #endif
 
   //cadmium::dynamic::engine::runner<NDTime, cadmium::logger::not_logger> r(TOP, {0});
-  cadmium::dynamic::engine::runner<NDTime, log_messages> r(TOP, {0});
+  cadmium::dynamic::engine::runner<NDTime, logger_top> r(TOP, {0});
   r.run_until(NDTime("00:10:00:000"));
 
   #ifndef ECADMIUM

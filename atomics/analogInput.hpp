@@ -45,7 +45,7 @@
     TIME pollingRate;
     // default c onstructor
     AnalogInput() noexcept{ 
-      AnalogInput(NULL, TIME("00:00:00:100"));
+      throw std::logic_error("Input atomic model requires a pin definition");
     }    
     AnalogInput(PinName pin) noexcept{
       AnalogInput(pin, TIME("00:00:00:100"));
