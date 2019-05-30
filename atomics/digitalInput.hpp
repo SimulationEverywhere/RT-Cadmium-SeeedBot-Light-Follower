@@ -52,7 +52,7 @@
       throw std::logic_error("Input atomic model requires a pin definition");
     }
     DigitalInput(PinName pin) {
-      DigitalInput(pin, TIME("00:00:00:100"));
+      new (this) DigitalInput(pin, TIME("00:00:00:100"));
     }
     DigitalInput(PinName pin, TIME rate) {
       pollingRate = rate;

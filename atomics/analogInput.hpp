@@ -49,7 +49,7 @@
       //throw std::logic_error("Input atomic model requires a pin definition");
     }    
     AnalogInput(PinName pin) noexcept{
-      AnalogInput(pin, TIME("00:00:00:100"));
+      new (this) AnalogInput(pin, TIME("00:00:00:100"));
     }
     AnalogInput(PinName pin, TIME rate) noexcept{
       pollingRate = rate;

@@ -21,7 +21,7 @@
 #include <random>
 
 #include "../data_structures/message.hpp"
-//#define SCARED_OF_THE_DARK
+#define SCARED_OF_THE_DARK
 
 using namespace cadmium;
 using namespace std;
