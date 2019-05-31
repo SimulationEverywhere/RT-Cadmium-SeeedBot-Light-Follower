@@ -1,14 +1,20 @@
+#-------------------------- INSTALL ECADMIUM DEPENDENCIES ----------------------------
+
 GCC_FOLDER_NAME=gcc-arm-none-eabi-8-2018-q4-major
-VERSION=1_0_0
 CADMIUM_DEPENDENCIES=0
 
-echo "Program and dependencies will install here: "$PWD"/ECadmium_"$VERSION" "
+PARENT_DIR="$(dirname "$PWD")"
+
+
+# -> Options
+
+echo "Dependencies will install here: "$PARENT_DIR"/"
 
 echo "Do you wish to install Cadmium Dependencies as well? (Git and GCC 7 for Cadmium Desktop)"
 select yn in "Yes" "No"; do
     case $yn in
-        Yes ) echo "Dependencies will be installed first."; CADMIUM_DEPENDENCIES=1; break;;
-        No ) echo "Dependencies will not be installed."; break;;
+        Yes ) echo "Cadmium Dependencies will be installed first."; CADMIUM_DEPENDENCIES=1; break;;
+        No ) echo "Cadmium Dependencies will not be installed."; break;;
     esac
 done
 
@@ -20,11 +26,10 @@ select yn in "Yes" "No"; do
     esac
 done
 
-echo "Creating Install Directory: "$PWD"/ECadmium_"$VERSION" "
-mkdir ECadmium_$VERSION
-cd ECadmium_$VERSION
+# -> Begin Install
 
-echo "### Install Dependencies ###"
+#super user do to prompt for password so user can go get a coffee and not watch the install..
+sudo echo "### Install Dependencies ###" 
 
 if [ $CADMIUM_DEPENDENCIES -eq 1 ]
 then
@@ -42,6 +47,9 @@ then
 
 fi
 
+echo "--> Update Submodules"
+git submodule update --init
+
 
 echo "-->Python and PIP"
 sudo apt-get -y install python2.7 python-pip
@@ -57,6 +65,7 @@ sudo mv ./$GCC_FOLDER_NAME /opt/
 
 echo "### Cleaning Up GCC ARM Download ###"
 sudo rm $GCC_FOLDER_NAME.tar.bz2
+sudo rm -rf gcc-arm-none-eabi-8-2018-q4-major/
 
 echo "### Install MBED-CLI ###"
 sudo pip install mbed-cli
@@ -64,22 +73,22 @@ sudo pip install mbed-cli
 echo "### Set MBED Compiler Path ###"
 mbed config -G GCC_ARM_PATH /opt/$GCC_FOLDER_NAME/bin
 
+echo "### Install miniterm.py ###"
+sudo pip install pyserial
+
 echo "### Download Boost 1.70.0 ###"
 wget https://dl.bintray.com/boostorg/release/1.70.0/source/boost_1_70_0.tar.bz2 -O boost_1_70_0.tar.bz2
 
 echo "### Extract Boost ###"
 tar jxf boost_1_70_0.tar.bz2
+mv boost_1_70_0 ../
 
 echo "### Cleanup Boost Download ###"
 sudo rm boost_1_70_0.tar.bz2
 
+cd ../ #Move up a directory to clone git repositories
+
 echo "### Clone Cadmium (Forked Version for Alpha ECadmium Release) ###"
-git clone https://github.com/KyleBjornson/cadmium.git
-
-echo "### Clone DESTimes ###"
-git clone https://github.com/Laouen/DESTimes.git
-
-echo "### Clone ECadmium Demo Project ###"
-git clone --recursive https://github.com/KyleBjornson/Blinky_ECadmium.git
+git clone --recursive https://github.com/KyleBjornson/cadmium.git
 
 
