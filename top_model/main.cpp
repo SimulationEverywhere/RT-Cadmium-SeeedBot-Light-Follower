@@ -55,33 +55,20 @@ using namespace std;
 using hclock=chrono::high_resolution_clock;
 using TIME = NDTime;
 
-// You must increase stack size for ECADMIUM. 
-// The main functionality will be ran in a new thread with increased stack size
-// See below for reference:
-// https://os.mbed.com/questions/79584/Change-main-thread-stack-size/
-#ifdef ECADMIUM
-  Thread app_thread(osPriorityNormal, 16*1024); // 16k stack
-  void run_app();
-#endif
 
 int main(int argc, char ** argv) {
 
   //This will end the main thread and create a new one with more stack.
   #ifdef ECADMIUM
-    app_thread.start(&run_app);
-      // Let the main thread die on the embedded platform. 
-    }
-    // run_app is only used for embedded threading, everything runs in main when simulated.
-    void run_app(){
 
     //Logging is done over cout in ECADMIUM
     struct oss_sink_provider{
-      static std::ostream& sink(){   
+      static std::ostream& sink(){
         return cout;
       }
     };
-  #else 
-    // all simulation timing and I/O streams are ommited when running embedded 
+  #else
+    // all simulation timing and I/O streams are ommited when running embedded
 
     auto start = hclock::now(); //to measure simulation execution time
 
@@ -89,7 +76,7 @@ int main(int argc, char ** argv) {
 
     static std::ofstream out_data("seeed_bot_test_output.txt");
     struct oss_sink_provider{
-      static std::ostream& sink(){   
+      static std::ostream& sink(){
         return out_data;
       }
     };
@@ -128,7 +115,7 @@ int main(int argc, char ** argv) {
   AtomicModelPtr rightIR = cadmium::dynamic::translate::make_dynamic_atomic_model<DigitalInput, TIME>("rightIR" , A0);
   AtomicModelPtr centerIR = cadmium::dynamic::translate::make_dynamic_atomic_model<DigitalInput, TIME>("centerIR", A2);
   AtomicModelPtr leftIR = cadmium::dynamic::translate::make_dynamic_atomic_model<DigitalInput, TIME>("leftIR", D4);
-  
+
   #ifdef SCARED_OF_THE_DARK
   AtomicModelPtr lightSensor = cadmium::dynamic::translate::make_dynamic_atomic_model<AnalogInput, TIME>("lightSensor", A5);
   #endif
@@ -166,13 +153,13 @@ int main(int argc, char ** argv) {
      cadmium::dynamic::translate::make_IC<digitalInput_defs::out, seeedBotDriver_defs::centerIR>("centerIR", "seeedBotDriver")
   };
   CoupledModelPtr TOP = std::make_shared<cadmium::dynamic::modeling::coupled<TIME>>(
-   "TOP", 
-   submodels_TOP, 
-   iports_TOP, 
-   oports_TOP, 
-   eics_TOP, 
-   eocs_TOP, 
-   ics_TOP 
+   "TOP",
+   submodels_TOP,
+   iports_TOP,
+   oports_TOP,
+   eics_TOP,
+   eocs_TOP,
+   ics_TOP
    );
 
 ///****************////
@@ -186,7 +173,7 @@ int main(int argc, char ** argv) {
   #endif
 
   // Logs are currently blocking opperations. It is recommended to turn them off when embedding your application.
-  // They can be used for testing; however, keep in mind they will add extra delay to your model. 
+  // They can be used for testing; however, keep in mind they will add extra delay to your model.
   cadmium::dynamic::engine::runner<NDTime, cadmium::logger::not_logger> r(TOP, {0});
   //cadmium::dynamic::engine::runner<NDTime, log_all> r(TOP, {0});
   r.run_until(NDTime("00:10:00:000"));
