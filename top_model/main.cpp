@@ -61,12 +61,12 @@ int main(int argc, char ** argv) {
   #ifdef ECADMIUM
     //Logging is done over cout in ECADMIUM
     struct oss_sink_provider{
-      static std::ostream& sink(){   
+      static std::ostream& sink(){
         return cout;
       }
     };
-  #else 
-    // all simulation timing and I/O streams are ommited when running embedded 
+  #else
+    // all simulation timing and I/O streams are ommited when running embedded
 
     auto start = hclock::now(); //to measure simulation execution time
 
@@ -74,7 +74,7 @@ int main(int argc, char ** argv) {
 
     static std::ofstream out_data("seeed_bot_test_output.txt");
     struct oss_sink_provider{
-      static std::ostream& sink(){   
+      static std::ostream& sink(){
         return out_data;
       }
     };
@@ -113,7 +113,7 @@ int main(int argc, char ** argv) {
   AtomicModelPtr rightIR = cadmium::dynamic::translate::make_dynamic_atomic_model<DigitalInput, TIME>("rightIR" , A0, TIME("00:00:00:100"));
   AtomicModelPtr centerIR = cadmium::dynamic::translate::make_dynamic_atomic_model<DigitalInput, TIME>("centerIR", A2, TIME("00:00:00:100"));
   AtomicModelPtr leftIR = cadmium::dynamic::translate::make_dynamic_atomic_model<DigitalInput, TIME>("leftIR", D4, TIME("00:00:00:100"));
-  
+
   #ifdef SCARED_OF_THE_DARK
   AtomicModelPtr lightSensor = cadmium::dynamic::translate::make_dynamic_atomic_model<AnalogInput, TIME>("lightSensor", A5, TIME("00:00:00:100"));
   #endif
@@ -151,13 +151,13 @@ int main(int argc, char ** argv) {
      cadmium::dynamic::translate::make_IC<digitalInput_defs::out, seeedBotDriver_defs::centerIR>("centerIR", "seeedBotDriver")
   };
   CoupledModelPtr TOP = std::make_shared<cadmium::dynamic::modeling::coupled<TIME>>(
-   "TOP", 
-   submodels_TOP, 
-   iports_TOP, 
-   oports_TOP, 
-   eics_TOP, 
-   eocs_TOP, 
-   ics_TOP 
+   "TOP",
+   submodels_TOP,
+   iports_TOP,
+   oports_TOP,
+   eics_TOP,
+   eocs_TOP,
+   ics_TOP
    );
 
 ///****************////
@@ -171,7 +171,7 @@ int main(int argc, char ** argv) {
   #endif
 
   // Logs are currently blocking opperations. It is recommended to turn them off when embedding your application.
-  // They can be used for testing; however, keep in mind they will add extra delay to your model. 
+  // They can be used for testing; however, keep in mind they will add extra delay to your model.
   cadmium::dynamic::engine::runner<NDTime, cadmium::logger::not_logger> r(TOP, {0});
   //cadmium::dynamic::engine::runner<NDTime, log_all> r(TOP, {0});
   r.run_until(NDTime("00:10:00:000"));
