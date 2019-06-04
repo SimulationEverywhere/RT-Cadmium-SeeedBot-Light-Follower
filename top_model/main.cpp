@@ -55,25 +55,10 @@ using namespace std;
 using hclock=chrono::high_resolution_clock;
 using TIME = NDTime;
 
-// You must increase stack size for ECADMIUM. 
-// The main functionality will be ran in a new thread with increased stack size
-// See below for reference:
-// https://os.mbed.com/questions/79584/Change-main-thread-stack-size/
-#ifdef ECADMIUM
-  Thread app_thread(osPriorityNormal, 16*1024); // 16k stack
-  void run_app();
-#endif
-
 int main(int argc, char ** argv) {
 
   //This will end the main thread and create a new one with more stack.
   #ifdef ECADMIUM
-    app_thread.start(&run_app);
-      // Let the main thread die on the embedded platform. 
-    }
-    // run_app is only used for embedded threading, everything runs in main when simulated.
-    void run_app(){
-
     //Logging is done over cout in ECADMIUM
     struct oss_sink_provider{
       static std::ostream& sink(){   
@@ -125,12 +110,12 @@ int main(int argc, char ** argv) {
 /********************************************/
 /****************** Input *******************/
 /********************************************/
-  AtomicModelPtr rightIR = cadmium::dynamic::translate::make_dynamic_atomic_model<DigitalInput, TIME>("rightIR" , A0);
-  AtomicModelPtr centerIR = cadmium::dynamic::translate::make_dynamic_atomic_model<DigitalInput, TIME>("centerIR", A2);
-  AtomicModelPtr leftIR = cadmium::dynamic::translate::make_dynamic_atomic_model<DigitalInput, TIME>("leftIR", D4);
+  AtomicModelPtr rightIR = cadmium::dynamic::translate::make_dynamic_atomic_model<DigitalInput, TIME>("rightIR" , A0, TIME("00:00:00:100"));
+  AtomicModelPtr centerIR = cadmium::dynamic::translate::make_dynamic_atomic_model<DigitalInput, TIME>("centerIR", A2, TIME("00:00:00:100"));
+  AtomicModelPtr leftIR = cadmium::dynamic::translate::make_dynamic_atomic_model<DigitalInput, TIME>("leftIR", D4, TIME("00:00:00:100"));
   
   #ifdef SCARED_OF_THE_DARK
-  AtomicModelPtr lightSensor = cadmium::dynamic::translate::make_dynamic_atomic_model<AnalogInput, TIME>("lightSensor", A5);
+  AtomicModelPtr lightSensor = cadmium::dynamic::translate::make_dynamic_atomic_model<AnalogInput, TIME>("lightSensor", A5, TIME("00:00:00:100"));
   #endif
 /********************************************/
 /***************** Output *******************/
