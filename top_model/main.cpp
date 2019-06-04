@@ -12,6 +12,10 @@
 #include <algorithm>
 #include <string>
 
+// Allow a 10ms slip in the real time clock. 
+// If the slip is more 10ms the device will enter a failed state.
+#define MISSED_DEADLINE_TOLERANCE 10000
+
 #include <cadmium/modeling/coupled_model.hpp>
 #include <cadmium/modeling/ports.hpp>
 #include <cadmium/modeling/dynamic_model_translator.hpp>
