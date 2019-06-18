@@ -30,10 +30,10 @@
 
 #include <NDTime.hpp>
 
-#include <cadmium/embedded/io/digitalInput.hpp>
-#include <cadmium/embedded/io/analogInput.hpp>
-#include <cadmium/embedded/io/pwmOutput.hpp>
-#include <cadmium/embedded/io/digitalOutput.hpp>
+#include <cadmium/real_time/arm_mbed/io/digitalInput.hpp>
+#include <cadmium/real_time/arm_mbed/io/analogInput.hpp>
+#include <cadmium/real_time/arm_mbed/io/pwmOutput.hpp>
+#include <cadmium/real_time/arm_mbed/io/digitalOutput.hpp>
 
 #include "../atomics/seeedBotDriver.hpp"
 
