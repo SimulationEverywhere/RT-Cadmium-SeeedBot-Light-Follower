@@ -4,7 +4,7 @@
 *
 * Analog Input:
 * This main file constructs the do simple line following project, using a Seed Bot Shield.
-* Its purpose is to demonstrate how to use all of the port IO models in ECADMIUM.
+* Its purpose is to demonstrate how to use all of the port IO models in RT_ARM_MBED.
 */
 
 #include <iostream>
@@ -37,7 +37,7 @@
 
 #include "../atomics/seeedBotDriver.hpp"
 
-#ifdef ECADMIUM
+#ifdef RT_ARM_MBED
   #include "../mbed.h"
 #else
   const char* A0  = "./inputs/A0_RightIR_In.txt";
@@ -62,8 +62,8 @@ using TIME = NDTime;
 int main(int argc, char ** argv) {
 
   //This will end the main thread and create a new one with more stack.
-  #ifdef ECADMIUM
-    //Logging is done over cout in ECADMIUM
+  #ifdef RT_ARM_MBED
+    //Logging is done over cout in RT_ARM_MBED
     struct oss_sink_provider{
       static std::ostream& sink(){
         return cout;
@@ -166,7 +166,7 @@ int main(int argc, char ** argv) {
 
 ///****************////
 
-  #ifdef ECADMIUM
+  #ifdef RT_ARM_MBED
     //Enable the motors:
     DigitalOut rightMotorEn(D9);
     DigitalOut leftMotorEn(D10);
@@ -180,7 +180,7 @@ int main(int argc, char ** argv) {
   //cadmium::dynamic::engine::runner<NDTime, log_all> r(TOP, {0});
   r.run_until(NDTime("00:10:00:000"));
 
-  #ifndef ECADMIUM
+  #ifndef RT_ARM_MBED
     return 0;
   #endif
 }

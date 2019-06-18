@@ -1,4 +1,4 @@
-#-------------------------- INSTALL ECADMIUM DEPENDENCIES ----------------------------
+#-------------------------- INSTALL RT_ARM_MBED DEPENDENCIES ----------------------------
 
 GCC_FOLDER_NAME=gcc-arm-none-eabi-8-2018-q4-major
 CADMIUM_DEPENDENCIES=0
@@ -94,5 +94,5 @@ sudo rm boost_1_70_0.tar.bz2
 
 cd ../ #Move up a directory to clone git repositories
 
-echo "### Clone Cadmium (Forked Version for Alpha ECadmium Release) ###"
+echo "### Clone Cadmium (Forked Version for Alpha RT_ARM_MBED Release) ###"
 git clone --recursive https://github.com/KyleBjornson/cadmium.git

@@ -4,7 +4,7 @@
 *
 * Seeed Bot Driver:
 * This model will do simple line following using a Seed Bot Shield.
-* Its purpose is to demonstrate how to use all of the port IO models in ECADMIUM.
+* Its purpose is to demonstrate how to use all of the port IO models in RT_ARM_MBED.
 *
 * Note: The 'SCARED_OF_THE_DARK' macro will read from a Grove light sensor on 
 *   analog port A5 and stop the car if the reading is less then 0.3.
