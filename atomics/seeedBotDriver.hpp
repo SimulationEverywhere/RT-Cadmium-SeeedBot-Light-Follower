@@ -32,7 +32,7 @@
 
 using namespace cadmium;
 using namespace std;
-enum DriveState {right = 0, straight = 1, left = 2, stop = 3};
+enum DriveState {right = 0, straight = 1, left = 2, stop = 3, unknown = 4};
 //Port definition
     struct seeedBotDriver_defs {
         //Output ports
@@ -58,7 +58,7 @@ enum DriveState {right = 0, straight = 1, left = 2, stop = 3};
             TIME   fastToggleTime;
             // default constructor
             SeeedBotDriver() noexcept{
-              state.dir = straight;
+              state.dir = unknown;
             }
             
             // state definition
@@ -87,6 +87,11 @@ enum DriveState {right = 0, straight = 1, left = 2, stop = 3};
             // external transition
             void external_transition(TIME e, typename make_message_bags<input_ports>::type mbs) { 
               float light = 0;
+              DriveState oldState = state.dir;
+              // Note: This will search the message bags for each port and store only the LAST value in the state variable.
+              // Saving the inputs in a state variable is required since not all sensors are update at the same time.
+              // For example, if a new rightIR reading comes through we need to know the last center and left IR readings 
+              // to make the drive direction decision.
               for(const auto &x : get_messages<typename defs::rightIR>(mbs)){
                 state.rightIR = !x;
               }
@@ -102,7 +107,7 @@ enum DriveState {right = 0, straight = 1, left = 2, stop = 3};
               }
               #endif
               if((!(state.rightIR ^ state.leftIR ^ state.centerIR) && !(!state.rightIR && !state.leftIR && !state.centerIR)) || (state.rightIR && state.leftIR && state.centerIR)) {
-                //This happens when no IR sensors see the line and if two or more IR sensors see the line.
+                // This happens when no IR sensors see the line and if two or more IR sensors see the line.
                 state.dir = DriveState::stop;
               } else if (state.rightIR) {
                 state.dir = DriveState::left;
@@ -116,7 +121,8 @@ enum DriveState {right = 0, straight = 1, left = 2, stop = 3};
                 state.dir = DriveState::stop;
               }
               #endif
-              state.prop = true;
+              // If the state changes, force an output.
+              state.prop = true; //state.dir == oldState;
             }
 
             // confluence transition
