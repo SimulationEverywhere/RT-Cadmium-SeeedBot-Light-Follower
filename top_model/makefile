@@ -4,7 +4,7 @@ COMPILE_TARGET=NUCLEO_F401RE
 FLASH_TARGET=NODE_F401RE
 EXECUTABLE_NAME=SEEED_BOT_TOP
 
-INCLUDRT_ARM_MBED=-I ../../cadmium/include
+INCLUDECADMIUM=-I ../../cadmium/include
 INCLUDEDESTIMES=-I ../../cadmium/DESTimes/include
 
 embedded:
@@ -18,7 +18,7 @@ all: main.o
 	$(CC) -g -o $(EXECUTABLE_NAME) main.o 
 
 main.o: main.cpp
-	$(CC) -g -c $(CFLAGS) $(INCLUDRT_ARM_MBED) $(INCLUDEDESTIMES) main.cpp -o main.o
+	$(CC) -g -c $(CFLAGS) $(INCLUDECADMIUM) $(INCLUDEDESTIMES) main.cpp -o main.o
 
 clean:
 	rm -f $(EXECUTABLE_NAME) *.o *~
