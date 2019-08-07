@@ -106,10 +106,10 @@ enum DriveState {right = 0, straight = 1, left = 2, stop = 3};
               if(state.centerIR) {
                 //if centerIR doesn't see the ground, bot stops
                 state.dir = DriveState::stop;
-              } else if ((state.lightLeft-state.lightRight)<0.1) { //10% difference between left and right sensor
-                state.dir = DriveState::right;
-              } else if ((state.lightRight-state.lightLeft)>0.1) {
+              } else if ((state.lightLeft-state.lightRight) > 0.1) { //10% difference between left and right sensor
                 state.dir = DriveState::left;
+              } else if ((state.lightRight-state.lightLeft) > 0.1) {
+                state.dir = DriveState::right;
               } else {
                 state.dir = DriveState::straight;
               }
@@ -133,7 +133,7 @@ enum DriveState {right = 0, straight = 1, left = 2, stop = 3};
               switch(state.dir){
                 case DriveState::right:
                   rightMotorOut1 = 0;
-                  rightMotorOut2 = 0.5;
+                  rightMotorOut2 = 0;
                   leftMotorOut1 = 0;
                   leftMotorOut2 = 1;                
                 break;
@@ -142,7 +142,7 @@ enum DriveState {right = 0, straight = 1, left = 2, stop = 3};
                   rightMotorOut1 = 0;
                   rightMotorOut2 = 1;
                   leftMotorOut1 = 0;
-                  leftMotorOut2 = 0.5;
+                  leftMotorOut2 = 0;
                 break;
 
                 case DriveState::straight:
