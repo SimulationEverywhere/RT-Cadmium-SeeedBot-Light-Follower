@@ -164,9 +164,9 @@ int main(int argc, char ** argv) {
   // Logs are currently blocking opperations. It is recommended to turn them off when embedding your application.
   // They can be used for testing; however, keep in mind they will add extra delay to your model.
 
-  cadmium::dynamic::engine::runner<NDTime, cadmium::logger::not_logger> r(TOP, {0});
+  //cadmium::dynamic::engine::runner<NDTime, cadmium::logger::not_logger> r(TOP, {0});
 
-  //cadmium::dynamic::engine::runner<NDTime, log_all> r(TOP, {0});
+  cadmium::dynamic::engine::runner<NDTime, log_all> r(TOP, {0});
 
   r.run_until(NDTime("00:10:00:000"));
 
